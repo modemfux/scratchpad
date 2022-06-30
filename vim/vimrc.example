@@ -1,0 +1,103 @@
+" Кодировка по-умолчанию
+set encoding=utf8
+
+" Нумерация строк
+set number
+set numberwidth=5
+
+set t_Co=256
+
+" Выделение курсора
+set cursorline
+set cursorcolumn
+" highlight CursorLine ctermbg=8 ctermfg=7
+highlight CursorLine ctermbg=16
+highlight CursorColumn ctermbg=16
+
+set ruler
+
+" Отступы и т.п.
+set smarttab
+set shiftwidth=4
+set expandtab
+set tabstop=4
+set softtabstop=4
+set smartindent
+
+" Перенос по словам
+set wrap
+set linebreak
+
+set history=1000
+set undolevels=1000
+
+" Настройки поиска
+set ignorecase
+set smartcase
+
+" Включение светлой темы
+" set background=light
+
+" Автодополнение команд в командном режиме
+set wildmenu
+set wildchar=<Tab>
+
+" Автодополнение
+set completeopt=longest,menuone
+function! SmartTabComplete()
+
+    " Если меню с выбором уже открылось, перейти к следующему варианту
+    if pumvisible()
+        return "\<C-n>"
+    endif
+
+    " Содержимое текущей строки
+    let l:line = getline('.')
+
+    " Берём подстроку от начала текущей строки
+    " и до положения курсора, но можно написать
+    " и col('.') + 1, чтобы брать чуть больше
+    let l:substr = strpart(l:line, -1, col('.'))
+
+    " Проверяем,состоит ли строка только из пробельных символов
+    let l:substr = matchstr(l:substr, '[^ \t]*$')
+
+    if (strlen(l:substr)==0)                          " nothing to match on empty string
+        return "\<Tab>"
+    endif
+
+    let l:has_period = match(l:substr, '\.') != -1      " position of period, if any
+    let l:has_slash = match(l:substr, '\/') != -1       " position of slash, if any
+
+    if (!l:has_period && !l:has_slash)
+        return "\<C-x>\<C-n>"                         " existing text matching
+    elseif (l:has_slash)
+        return "\<C-x>\<C-f>"                         " file matching
+    else
+        return "\<C-x>\<C-o>"                         " plugin matching
+    endif
+endfunction
+" Взято с: https://vim.fandom.com/wiki/Smart_mapping_for_tab_completion
+" Дополнил с помощью: https://stackoverflow.com/questions/9751540/omnicomplete-in-vim-with-shift-tab-not-working
+
+" Заменил <C-r>= перед названием функции
+" на <expr> перед Tab, и удалил <CR> на конце
+" (по сравнению с примерами по ссылкам выше)
+inoremap <expr><Tab> SmartTabComplete()
+
+" Обратный скролл вариантов Tab на Shift+Tab (в том числе отмена первого изменения)
+inoremap <expr><S-Tab> pumvisible() ? "\<C-p>" : "\<C-n>"
+
+" Выбор дополнения по нажатию Enter, вместо перевода строки
+inoremap <expr><CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
+set omnifunc=syntaxcomplete#Complete
+
+" Подсветка лишних пробелов в конце строки
+highlight ExtraWhitespace ctermbg=red
+autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufWinLeave * call clearmatches()
