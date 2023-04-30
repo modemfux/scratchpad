@@ -10,8 +10,8 @@ set t_Co=256
 " Выделение курсора
 set cursorline
 set cursorcolumn
-" highlight CursorLine ctermbg=8 ctermfg=7
-highlight CursorLine ctermbg=16
+" Выделение строки жирным шрифтом оригинальных цветов без подчеркивания и более темным фоном
+highlight CursorLine cterm=bold ctermbg=16 ctermfg=None
 highlight CursorColumn ctermbg=16
 
 set ruler
