@@ -53,6 +53,12 @@ echo "GIT_PROMPT_THEME=Custom_Single_Line_Dark"
 
 В итоге получаем такой вот prompt:
 
-```
+```linux
 modemfux@WSL-22.04:~/REPO/net_operations [main|✔]>
 ```
+
+```markdown
+![Sample image](./imgs/sample.png)
+```
+
+![Sample image](./imgs/sample.png)
