@@ -48,7 +48,8 @@ reload_git_prompt_colors "Single_line_nono031"
 Добавляем в автозапуск загрузку темы:
 
 ```linux
-echo "GIT_PROMPT_THEME=Custom_Single_Line_Dark"
+echo "" >> ~/.bashrc
+echo "GIT_PROMPT_THEME=Custom_Single_Line_Dark" >> ~/.bashrc
 ```
 
 В итоге получаем такой вот prompt:
