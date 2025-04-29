@@ -1,5 +1,7 @@
 # Docker memo
 
+## Начало
+
 Для работы без sudo или не из под root'а необходимо добавить пользователя в группу docker:
 
 ```linux
@@ -9,7 +11,9 @@ uid=1000(modemfux) gid=1000(modemfux) groups=1000(modemfux),4(adm),24(cdrom),27(
 modemfux@docker-vm-nb:~$
 ```
 
-Скачать образ:
+## Базовые команды
+
+**Скачать образ:**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker pull nginx:latest
@@ -26,7 +30,7 @@ Status: Downloaded newer image for nginx:latest
 docker.io/library/nginx:latest
 ```
 
-Посмотреть список образов:
+**Посмотреть список образов:**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker image ls
@@ -38,7 +42,7 @@ nginx        latest    4e1b6bae1e48   11 days ago   192MB
 modemfux@docker-vm-nb:~$
 ```
 
-Посмотреть подробную информацию образа:
+**Посмотреть подробную информацию образа:**
 
 ```json
 modemfux@docker-vm-nb:~$ docker inspect nginx
@@ -125,7 +129,7 @@ modemfux@docker-vm-nb:~$ docker inspect nginx
 ]
 ```
 
-Создать и запустить контейнер. По умолчанию запускается не в detached mode, для выхода необходимо нажать Ctrl+C.
+**Создать и запустить контейнер. По умолчанию запускается не в detached mode, для выхода необходимо нажать Ctrl+C.**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker run nginx
@@ -199,7 +203,7 @@ hello-world   latest    74cc54e27dc4   3 months ago   10.1kB
 modemfux@docker-vm-nb:~$
 ```
 
-Создать и запустить в detached-режиме:
+**Создать и запустить в detached-режиме:**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker run -d nginx
@@ -207,7 +211,7 @@ modemfux@docker-vm-nb:~$ docker run -d nginx
 modemfux@docker-vm-nb:~$
 ```
 
-Можно задать вручную имя:
+**Можно задать вручную имя:**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker run -d --rm --name Zappa nginx
@@ -231,7 +235,7 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 modemfux@docker-vm-nb:~$
 ```
 
-Посмотреть список запущенных контейнеров:
+**Посмотреть список запущенных контейнеров:**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker ps
@@ -239,7 +243,7 @@ CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS       
 29ce8023f7e9   nginx     "/docker-entrypoint.…"   13 seconds ago   Up 13 seconds   80/tcp    recursing_noyce
 ```
 
-Посмотреть список всех контейнеров, включая остановленные:
+**Посмотреть список всех контейнеров, включая остановленные:**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker ps -a
@@ -260,7 +264,7 @@ CONTAINER ID   IMAGE         COMMAND                  CREATED       STATUS      
 modemfux@docker-vm-nb:~$
 ```
 
-Остановить контейнер:
+**Остановить контейнер:**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker stop 29ce8023f7e9
@@ -275,7 +279,7 @@ CONTAINER ID   IMAGE         COMMAND                  CREATED       STATUS      
 modemfux@docker-vm-nb:~$
 ```
 
-Запустить созданный контейнер:
+**Запустить созданный контейнер:**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker start 29ce8023f7e9
@@ -286,7 +290,7 @@ CONTAINER ID   IMAGE     COMMAND                  CREATED       STATUS         P
 modemfux@docker-vm-nb:~$
 ```
 
-Посмотреть детальную информацию об объекте (контейнере):
+**Посмотреть детальную информацию об объекте (контейнере):**
 
 ```json
 modemfux@docker-vm-nb:~$ docker inspect 29ce8023f7e9
@@ -512,7 +516,7 @@ modemfux@docker-vm-nb:~$ docker inspect 29ce8023f7e9
 ]
 ```
 
-Посмотреть статистику в реальном времени (чтобы выйти, нужно три раза нажать Ctrl+C)
+**Посмотреть статистику в реальном времени (чтобы выйти, нужно три раза нажать Ctrl+C):**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker stats 29ce8023f7e9
@@ -523,7 +527,7 @@ CONTAINER ID   NAME              CPU %     MEM USAGE / LIMIT     MEM %     NET I
 got 3 SIGTERM/SIGINTs, forcefully exiting
 ```
 
-Чтобы удалить образ необходимо использовать `docker rmi $IMAGE_NAME`:
+**Чтобы удалить образ необходимо использовать `docker rmi $IMAGE_NAME`:**
 
 ```linux
 modemfux@docker-vm-nb:~$ docker ps
@@ -607,5 +611,146 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 modemfux@docker-vm-nb:~$ docker images
 REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
 hello-world   latest    74cc54e27dc4   3 months ago   10.1kB
+modemfux@docker-vm-nb:~$
+```
+
+**Подключиться к запущенному контейнеру (выполнить команду в интерактивном режиме):**
+
+```linux
+modemfux@docker-vm-nb:~$ docker run --rm -d --name=DOCK nginx
+4e061430f06d993f23adf24d1ed1582baafb8acaa4026c3763c8e8d15d90b0fc
+modemfux@docker-vm-nb:~$ docker exec -it DOCK /bin/bash
+root@4e061430f06d:/# ls
+bin  boot  dev  docker-entrypoint.d  docker-entrypoint.sh  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@4e061430f06d:/# pwd
+/
+root@4e061430f06d:/# exit
+exit
+modemfux@docker-vm-nb:~$
+```
+
+## Проброс портов
+
+Обычный запуск:
+
+```linux
+modemfux@docker-vm-nb:~$ docker run --rm -d --name=DOCK nginx
+618ed93f6c04a335583e0334ae0747bb47d637842951c31c0facd5805a419ee7
+modemfux@docker-vm-nb:~$ docker inspect DOCK | grep IPA
+            "SecondaryIPAddresses": null,
+            "IPAddress": "172.17.0.2",
+                    "IPAMConfig": null,
+                    "IPAddress": "172.17.0.2",
+modemfux@docker-vm-nb:~$ curl http://172.17.0.2/
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+modemfux@docker-vm-nb:~$ curl http://localhost
+curl: (7) Failed to connect to localhost port 80 after 0 ms: Couldn't connect to server
+modemfux@docker-vm-nb:~$ docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS     NAMES
+618ed93f6c04   nginx     "/docker-entrypoint.…"   13 seconds ago   Up 12 seconds   80/tcp    DOCK
+modemfux@docker-vm-nb:~$ ss -tlpn
+State                       Recv-Q                      Send-Q                                           Local Address:Port                                           Peer Address:Port                     Process
+LISTEN                      0                           4096                                                127.0.0.54:53                                                  0.0.0.0:*
+LISTEN                      0                           128                                                  127.0.0.1:6010                                                0.0.0.0:*
+LISTEN                      0                           4096                                             127.0.0.53%lo:53                                                  0.0.0.0:*
+LISTEN                      0                           4096                                                         *:22                                                        *:*
+LISTEN                      0                           128                                                      [::1]:6010                                                   [::]:*
+modemfux@docker-vm-nb:~$
+```
+
+Теперь включим с пробросом портов:
+
+```linux
+modemfux@docker-vm-nb:~$ docker stop DOCK
+DOCK
+modemfux@docker-vm-nb:~$ docker run --rm -d --name=DOCK2 -p 80:80 nginx
+e052090d5fe157a2a320e774151a68c4fe956c801bbfde6330c45c053914fc3b
+modemfux@docker-vm-nb:~$ docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                                 NAMES
+e052090d5fe1   nginx     "/docker-entrypoint.…"   3 seconds ago   Up 2 seconds   0.0.0.0:80->80/tcp, [::]:80->80/tcp   DOCK2
+modemfux@docker-vm-nb:~$ docker inspect DOCK2 | grep IPA
+            "SecondaryIPAddresses": null,
+            "IPAddress": "172.17.0.2",
+                    "IPAMConfig": null,
+                    "IPAddress": "172.17.0.2",
+modemfux@docker-vm-nb:~$ ss -tlpn
+State                       Recv-Q                      Send-Q                                           Local Address:Port                                           Peer Address:Port                     Process
+LISTEN                      0                           4096                                                   0.0.0.0:80                                                  0.0.0.0:*
+LISTEN                      0                           4096                                                127.0.0.54:53                                                  0.0.0.0:*
+LISTEN                      0                           128                                                  127.0.0.1:6010                                                0.0.0.0:*
+LISTEN                      0                           4096                                             127.0.0.53%lo:53                                                  0.0.0.0:*
+LISTEN                      0                           4096                                                         *:22                                                        *:*
+LISTEN                      0                           4096                                                      [::]:80                                                     [::]:*
+LISTEN                      0                           128                                                      [::1]:6010                                                   [::]:*
+modemfux@docker-vm-nb:~$ curl http://172.17.0.2/
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+modemfux@docker-vm-nb:~$ curl http://localhost
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
 modemfux@docker-vm-nb:~$
 ```
