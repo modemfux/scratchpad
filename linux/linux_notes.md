@@ -335,3 +335,44 @@ eth0             UP             10.250.254.111/24 fe80::20c:29ff:fedf:eb8b/64
 docker0          DOWN           172.17.0.1/16
 modemfux@docker-vm-nb:~$
 ```
+
+### Включить обработку входящих пакетов для VRF
+
+```linux
+sudo echo "" >> /etc/sysctl.conf
+sudo echo "net.ipv4.tcp_l3mdev_accept=1" >> /etc/sysctl.conf
+sudo echo "net.ipv4.udp_l3mdev_accept=1" >> /etc/sysctl.conf
+```
+
+### LLDP
+
+Установка и добавление в автозагрузку:
+
+```linux
+apt update && apt install lldpd -y
+systemctl start lldpd
+systemctl enable lldpd
+```
+
+По умолчанию вместо имени интерфейса lldpd отдает MAC-адрес. Чтобы исправить это, нужно в `/etc/lldpd.d` создать conf-файл и добавить следующее:
+
+```linux
+root@proxmox:~# cd /etc/lldpd.d/
+root@proxmox:/etc/lldpd.d# ll
+total 12
+drwxr-xr-x  2 root root 4096 May  2 08:46 ./
+drwxr-xr-x 94 root root 4096 May  2 08:37 ../
+-rw-r--r--  1 root root  342 Sep 22  2023 README.conf
+root@proxmox:/etc/lldpd.d# touch lldpd_modified.conf
+root@proxmox:/etc/lldpd.d# echo "config lldp portidsubtype ifname" > lldpd_modified.conf
+root@proxmox:/etc/lldpd.d# systemctl restart lldpd.service
+root@proxmox:/etc/lldpd.d#
+```
+
+```huawei
+<nn-van28a-r01>dis lldp ne br
+Local Intf   Neighbor Dev             Neighbor Intf             Exptime
+GE0/0/0      proxmox.local            enp1s0                    120
+GE0/0/2      -                        d493-9020-15b1            3050
+<nn-van28a-r01>
+```
