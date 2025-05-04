@@ -754,3 +754,589 @@ Commercial support is available at
 </html>
 modemfux@docker-vm-nb:~$
 ```
+
+## Сети в docker
+
+По умолчанию все контейнеры создаются в дефолтной бриджевой сети `bridge`:
+
+```linux
+modemfux@docker-vm-nb:~$ docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+68c69a7aec35   bridge    bridge    local
+c604d91d1acf   host      host      local
+2a19832f71a2   none      null      local
+```
+
+Для этой сети создан бридж-интерфейс docker0
+
+```linux
+modemfux@docker-vm-nb:~$ ip -d addr show docker0
+3: docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether 36:e6:80:30:63:93 brd ff:ff:ff:ff:ff:ff promiscuity 0  allmulti 0 minmtu 68 maxmtu 65535
+    bridge forward_delay 1500 hello_time 200 max_age 2000 ageing_time 30000 stp_state 0 priority 32768 vlan_filtering 0 vlan_protocol 802.1Q bridge_id 8000.36:e6:80:30:63:93 designated_root 8000.36:e6:80:30:63:93 root_port 0 root_path_cost 0 topology_change 0 topology_change_detected 0 hello_timer    0.00 tcn_timer    0.00 topology_change_timer    0.00 gc_timer    7.09 vlan_default_pvid 1 vlan_stats_enabled 0 vlan_stats_per_port 0 group_fwd_mask 0 group_address 01:80:c2:00:00:00 mcast_snooping 1 no_linklocal_learn 0 mcast_vlan_snooping 0 mcast_router 1 mcast_query_use_ifaddr 0 mcast_querier 0 mcast_hash_elasticity 16 mcast_hash_max 4096 mcast_last_member_count 2 mcast_startup_query_count 2 mcast_last_member_interval 100 mcast_membership_interval 26000 mcast_querier_interval 25500 mcast_query_interval 12500 mcast_query_response_interval 1000 mcast_startup_query_interval 3125 mcast_stats_enabled 0 mcast_igmp_version 2 mcast_mld_version 1 nf_call_iptables 0 nf_call_ip6tables 0 nf_call_arptables 0 numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535 tso_max_size 524280 tso_max_segs 65535 gro_max_size 65536
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::34e6:80ff:fe30:6393/64 scope link
+       valid_lft forever preferred_lft forever
+```
+
+```linux
+modemfux@docker-vm-nb:~$ docker run -d --rm --name WEB01 -p 80:80 sample_nginx:3
+da5b48e71920d8a34a3e15d5571d09f5dded9f071ecd5f88226db2100c6b9ea8
+modemfux@docker-vm-nb:~$ docker run -d --rm --name WEB02 -p 8080:80 sample_nginx:3
+786b44e4fc7783300cd544521d2bed6384fecfacfab965a8cb37ef2c1f9fb417
+modemfux@docker-vm-nb:~$ docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED          STATUS          PORTS                                     NAMES
+786b44e4fc77   sample_nginx:3   "nginx -g 'daemon of…"   21 seconds ago   Up 20 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   WEB02
+da5b48e71920   sample_nginx:3   "nginx -g 'daemon of…"   26 seconds ago   Up 26 seconds   0.0.0.0:80->80/tcp, [::]:80->80/tcp       WEB01
+modemfux@docker-vm-nb:~$ docker inspect WEB01 | grep -A 100 "NetworkSettings"
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "55ff13d883b438cbe24dd070f1a5bd7326518d0ec5b2f7159a440b9ae0796638",
+            "SandboxKey": "/var/run/docker/netns/55ff13d883b4",
+            "Ports": {
+                "80/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "80"
+                    },
+                    {
+                        "HostIp": "::",
+                        "HostPort": "80"
+                    }
+                ]
+            },
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "f1c7d3ab7bf58d4300ba31cc9e9e31dcf8a282f9be3ed90682d215b306ed1c5b",
+            "Gateway": "172.17.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "172.17.0.2",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "MacAddress": "4e:da:df:01:3d:98",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "MacAddress": "4e:da:df:01:3d:98",
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "68c69a7aec35495886aabcad95f06e948767abbccc7122687378d0c174efbdf4",
+                    "EndpointID": "f1c7d3ab7bf58d4300ba31cc9e9e31dcf8a282f9be3ed90682d215b306ed1c5b",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.2",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        }
+    }
+]
+modemfux@docker-vm-nb:~$ docker inspect WEB02 | grep -A 100 "NetworkSettings"
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "5a7ff3ceca8e9e7e96cb694fb74e7eeb989a1faa1a09ed925a53f32fe675df9d",
+            "SandboxKey": "/var/run/docker/netns/5a7ff3ceca8e",
+            "Ports": {
+                "80/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "8080"
+                    },
+                    {
+                        "HostIp": "::",
+                        "HostPort": "8080"
+                    }
+                ]
+            },
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "1fee50af2e6bb00ea9b04d2c4029857adcfc0f5acbaf427f8ca6e4c21d46aea9",
+            "Gateway": "172.17.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "172.17.0.3",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "MacAddress": "06:2f:6b:ab:a6:b4",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "MacAddress": "06:2f:6b:ab:a6:b4",
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "68c69a7aec35495886aabcad95f06e948767abbccc7122687378d0c174efbdf4",
+                    "EndpointID": "1fee50af2e6bb00ea9b04d2c4029857adcfc0f5acbaf427f8ca6e4c21d46aea9",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.3",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        }
+    }
+]
+modemfux@docker-vm-nb:~$
+```
+
+```linux
+modemfux@docker-vm-nb:~$ docker exec -it WEB01 /bin/bash
+root@da5b48e71920:/# ip -br a show
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+eth0@if36        UP             172.17.0.2/16
+root@da5b48e71920:/# ping -c 2 172.17.0.3
+PING 172.17.0.3 (172.17.0.3) 56(84) bytes of data.
+64 bytes from 172.17.0.3: icmp_seq=1 ttl=64 time=0.063 ms
+64 bytes from 172.17.0.3: icmp_seq=2 ttl=64 time=0.107 ms
+
+--- 172.17.0.3 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1033ms
+rtt min/avg/max/mdev = 0.063/0.085/0.107/0.022 ms
+root@da5b48e71920:/# ping -c 2 172.17.0.1
+PING 172.17.0.1 (172.17.0.1) 56(84) bytes of data.
+64 bytes from 172.17.0.1: icmp_seq=1 ttl=64 time=0.085 ms
+64 bytes from 172.17.0.1: icmp_seq=2 ttl=64 time=0.143 ms
+
+--- 172.17.0.1 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1032ms
+rtt min/avg/max/mdev = 0.085/0.114/0.143/0.029 ms
+root@da5b48e71920:/# ping -c 2 ya.ru
+PING ya.ru (77.88.55.242) 56(84) bytes of data.
+64 bytes from ya.ru (77.88.55.242): icmp_seq=1 ttl=52 time=14.8 ms
+64 bytes from ya.ru (77.88.55.242): icmp_seq=2 ttl=52 time=15.1 ms
+
+--- ya.ru ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1002ms
+rtt min/avg/max/mdev = 14.785/14.957/15.129/0.172 ms
+root@da5b48e71920:/# ping -c 2 WEB01
+ping: WEB01: Name or service not known
+root@da5b48e71920:/# ping -c 2 WEB02
+ping: WEB02: Name or service not known
+root@da5b48e71920:/#
+```
+
+Создаем новую сеть типа `bridge`:
+
+```linux
+modemfux@docker-vm-nb:~$ docker network create --gateway 192.168.0.1 --driver bridge --subnet 192.168.0.0/24 NET
+595f2f902e4e42446aef56c6eebba794456668f77e3489d3275e65e428e06d21
+modemfux@docker-vm-nb:~$ docker networks ls
+docker: unknown command: docker networks
+
+Run 'docker --help' for more information
+modemfux@docker-vm-nb:~$ docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+595f2f902e4e   NET       bridge    local
+68c69a7aec35   bridge    bridge    local
+c604d91d1acf   host      host      local
+2a19832f71a2   none      null      local
+modemfux@docker-vm-nb:~$ docker inspect NET
+[
+    {
+        "Name": "NET",
+        "Id": "595f2f902e4e42446aef56c6eebba794456668f77e3489d3275e65e428e06d21",
+        "Created": "2025-05-04T08:49:38.191568154Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "192.168.0.0/24",
+                    "Gateway": "192.168.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+modemfux@docker-vm-nb:~$ ip -br -c link
+lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP>
+eth0             UP             00:0c:29:df:eb:8b <BROADCAST,MULTICAST,UP,LOWER_UP>
+docker0          UP             36:e6:80:30:63:93 <BROADCAST,MULTICAST,UP,LOWER_UP>
+br-595f2f902e4e  DOWN           5e:0f:e7:e8:e2:ba <NO-CARRIER,BROADCAST,MULTICAST,UP>
+modemfux@docker-vm-nb:~$ ip -c -br a show
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+eth0             UP             10.250.254.111/24 fe80::20c:29ff:fedf:eb8b/64
+docker0          UP             172.17.0.1/16 fe80::34e6:80ff:fe30:6393/64
+br-595f2f902e4e  DOWN           192.168.0.1/24 fe80::5c0f:e7ff:fee8:e2ba/64
+modemfux@docker-vm-nb:~$
+```
+
+Создаем и запускаем контейнеры уже в новой сети:
+
+```linux
+modemfux@docker-vm-nb:~$ docker run -d --rm --name WEB01 -p 80:80 --network NET sample_nginx:3
+4156e0df2b79a9bf4219f4ab6e9d15c756d94985cde74d59d974a835c4b228d9
+modemfux@docker-vm-nb:~$ docker run -d --rm --name WEB02 -p 8080:80 --network NET sample_nginx:3
+ada8718a1f83a1e1ac597a5ff6fdf8f446a6319105a5ed3be2c546696b7c6236
+modemfux@docker-vm-nb:~$ docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED          STATUS          PORTS                                     NAMES
+ada8718a1f83   sample_nginx:3   "nginx -g 'daemon of…"   4 seconds ago    Up 4 seconds    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   WEB02
+4156e0df2b79   sample_nginx:3   "nginx -g 'daemon of…"   13 seconds ago   Up 12 seconds   0.0.0.0:80->80/tcp, [::]:80->80/tcp       WEB01
+modemfux@docker-vm-nb:~$ docker inspect WEB01 | grep -A 100 "NetworkSettings"
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "de8652fd0f2b0e4c2a64920da7439645474ae9297674a49efae744dedc1c78c7",
+            "SandboxKey": "/var/run/docker/netns/de8652fd0f2b",
+            "Ports": {
+                "80/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "80"
+                    },
+                    {
+                        "HostIp": "::",
+                        "HostPort": "80"
+                    }
+                ]
+            },
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "NET": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "MacAddress": "ee:ea:1f:99:c2:12",
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "595f2f902e4e42446aef56c6eebba794456668f77e3489d3275e65e428e06d21",
+                    "EndpointID": "85009eacd7f239060ea6cf8b9f3a16fcefcab17c8a6563683635bf72803c4cd6",
+                    "Gateway": "192.168.0.1",
+                    "IPAddress": "192.168.0.2",
+                    "IPPrefixLen": 24,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "WEB01",
+                        "4156e0df2b79"
+                    ]
+                }
+            }
+        }
+    }
+]
+modemfux@docker-vm-nb:~$ docker inspect WEB02 | grep -A 100 "NetworkSettings"
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "78cc09d0b55eacb5ecce92ab4aaa3d48425417f1ff3fe6d36fe0cbf8739b9f98",
+            "SandboxKey": "/var/run/docker/netns/78cc09d0b55e",
+            "Ports": {
+                "80/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "8080"
+                    },
+                    {
+                        "HostIp": "::",
+                        "HostPort": "8080"
+                    }
+                ]
+            },
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "NET": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "MacAddress": "8a:68:69:2c:94:73",
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "595f2f902e4e42446aef56c6eebba794456668f77e3489d3275e65e428e06d21",
+                    "EndpointID": "112445898c389c7c6a7d1f9a97786de4f2babf3022d4e3932305e720739305ef",
+                    "Gateway": "192.168.0.1",
+                    "IPAddress": "192.168.0.3",
+                    "IPPrefixLen": 24,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "WEB02",
+                        "ada8718a1f83"
+                    ]
+                }
+            }
+        }
+    }
+]
+modemfux@docker-vm-nb:~$
+```
+
+Проверяем:
+
+```linux
+modemfux@docker-vm-nb:~$ docker exec -it WEB01 /bin/bash
+root@4156e0df2b79:/# ip -c -br a
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+eth0@if41        UP             192.168.0.2/24
+root@4156e0df2b79:/# ping -c 2 192.168.0.3
+PING 192.168.0.3 (192.168.0.3) 56(84) bytes of data.
+64 bytes from 192.168.0.3: icmp_seq=1 ttl=64 time=0.645 ms
+64 bytes from 192.168.0.3: icmp_seq=2 ttl=64 time=0.136 ms
+
+--- 192.168.0.3 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1065ms
+rtt min/avg/max/mdev = 0.136/0.390/0.645/0.254 ms
+root@4156e0df2b79:/# ping -c 2 ya.ru
+PING ya.ru (77.88.55.242) 56(84) bytes of data.
+64 bytes from ya.ru (77.88.55.242): icmp_seq=1 ttl=52 time=13.2 ms
+64 bytes from ya.ru (77.88.55.242): icmp_seq=2 ttl=52 time=15.3 ms
+
+--- ya.ru ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 13.229/14.250/15.271/1.021 ms
+root@4156e0df2b79:/# ping -c 2 WEB02
+PING WEB02 (192.168.0.3) 56(84) bytes of data.
+64 bytes from WEB02.NET (192.168.0.3): icmp_seq=1 ttl=64 time=0.153 ms
+64 bytes from WEB02.NET (192.168.0.3): icmp_seq=2 ttl=64 time=0.046 ms
+
+--- WEB02 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1002ms
+rtt min/avg/max/mdev = 0.046/0.099/0.153/0.053 ms
+root@4156e0df2b79:/# ping -c 2 WEB01
+PING WEB01 (192.168.0.2) 56(84) bytes of data.
+64 bytes from 4156e0df2b79 (192.168.0.2): icmp_seq=1 ttl=64 time=0.037 ms
+64 bytes from 4156e0df2b79 (192.168.0.2): icmp_seq=2 ttl=64 time=0.093 ms
+
+--- WEB01 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1030ms
+rtt min/avg/max/mdev = 0.037/0.065/0.093/0.028 ms
+root@4156e0df2b79:/#
+```
+
+Теперь у нас контейнеры друг к другу могут обращаться и по именам.
+
+### Запуск контейнера со статически IP-адресом
+
+```linux
+modemfux@docker-vm-nb:~$ docker run -d --name WEB03 --network NET --ip 192.168.0.200 -p 8880:80 sample_nginx:3
+9d065a46cf37378a89963fc1f82ab4a3bfa89ee1e087269590652cf93d499a09
+modemfux@docker-vm-nb:~$ docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS         PORTS                                     NAMES
+9d065a46cf37   sample_nginx:3   "nginx -g 'daemon of…"   4 seconds ago   Up 3 seconds   0.0.0.0:8880->80/tcp, [::]:8880->80/tcp   WEB03
+ada8718a1f83   sample_nginx:3   "nginx -g 'daemon of…"   8 minutes ago   Up 8 minutes   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   WEB02
+4156e0df2b79   sample_nginx:3   "nginx -g 'daemon of…"   8 minutes ago   Up 8 minutes   0.0.0.0:80->80/tcp, [::]:80->80/tcp       WEB01
+modemfux@docker-vm-nb:~$ docker exec WEB03 ip -br -c a
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+eth0@if47        UP             192.168.0.200/24
+modemfux@docker-vm-nb:~$ docker stop WEB03
+WEB03
+modemfux@docker-vm-nb:~$ docker start WEB03
+WEB03
+modemfux@docker-vm-nb:~$ docker exec WEB03 ip -br -c a
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+eth0@if49        UP             192.168.0.200/24
+modemfux@docker-vm-nb:~$ docker exec WEB03 ping WEB01
+PING WEB01 (192.168.0.2) 56(84) bytes of data.
+64 bytes from WEB01.NET (192.168.0.2): icmp_seq=1 ttl=64 time=0.103 ms
+64 bytes from WEB01.NET (192.168.0.2): icmp_seq=2 ttl=64 time=0.074 ms
+^Ccontext canceled
+modemfux@docker-vm-nb:~$ docker exec WEB01 ping WEB03
+PING WEB03 (192.168.0.200) 56(84) bytes of data.
+64 bytes from WEB03.NET (192.168.0.200): icmp_seq=1 ttl=64 time=0.064 ms
+64 bytes from WEB03.NET (192.168.0.200): icmp_seq=2 ttl=64 time=0.103 ms
+^Ccontext canceled
+modemfux@docker-vm-nb:~$
+```
+
+## Вывести контейнер в общую сеть с сетевым интерфейсом
+
+Для этого используется сеть типа `macvlan` или `ipvlan`.
+
+```linux
+modemfux@docker-vm-nb:~$ docker network create \
+> --driver=macvlan \
+> --gateway=10.250.254.1 \
+> --subnet=10.250.254.0/24 \
+> --ip-range=10.250.254.64/30 \
+> --opt parent=eth0 \
+> NB_NET
+2628c4b4a767488f8241cec8d8e9fe660f36c2d9c2b576559597164fea9bd355
+modemfux@docker-vm-nb:~$ docker network inspect NB_NET
+[
+    {
+        "Name": "NB_NET",
+        "Id": "2628c4b4a767488f8241cec8d8e9fe660f36c2d9c2b576559597164fea9bd355",
+        "Created": "2025-05-04T09:27:51.844939947Z",
+        "Scope": "local",
+        "Driver": "macvlan",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "10.250.254.0/24",
+                    "IPRange": "10.250.254.64/30",
+                    "Gateway": "10.250.254.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {
+            "parent": "eth0"
+        },
+        "Labels": {}
+    }
+]
+modemfux@docker-vm-nb:~$
+```
+
+```linux
+modemfux@docker-vm-nb:~$ docker run -d --network NB_NET --name WEB01 sample_nginx:3
+89f7e89dc2a99e624ca3414254604e049718f1205adcf1da413b6838b1254985
+modemfux@docker-vm-nb:~$ docker run -d --network NB_NET --name WEB02 sample_nginx:3
+e26b2d8c9ebf711c91cc801a103f5527138f3b94dc44c9c5e3a248b51d9adc85
+modemfux@docker-vm-nb:~$ docker run -d --network NB_NET --name WEB03 sample_nginx:3
+4963fc92f2cce2af46d5968b5334fed58cfeaf62429c074229346aba532e1740
+modemfux@docker-vm-nb:~$ docker run -d --network NB_NET --name WEB04 sample_nginx:3
+b4992aa3dea59ccf0127f4c85b2d498543a4345c18ac1f3e8adb52b688385daf
+```
+
+```huawei
+<nn-van28a-r01>dis arp int vlan254
+IP ADDRESS      MAC ADDRESS     EXPIRE(M) TYPE        INTERFACE   VPN-INSTANCE
+                                    VLAN/CEVLAN(SIP/DIP)      PVC
+------------------------------------------------------------------------------
+10.250.254.1    2c9d-1ec7-ee19            I -         Vlanif254      LAN
+10.250.254.100  d493-9020-15b1  6         D-0         GE0/0/2        LAN
+                                           254/-
+10.250.254.111  000c-29df-eb8b  15        D-0         GE0/0/2        LAN
+                                           254/-
+10.250.254.64   9e12-f086-7301  20        D-0         GE0/0/2        LAN
+                                           254/-
+10.250.254.65   4ed0-69e7-1278  20        D-0         GE0/0/2        LAN
+                                           254/-
+10.250.254.66   4ab8-8562-2eeb  20        D-0         GE0/0/2        LAN
+                                           254/-
+10.250.254.67   02a2-0bbe-baa9  20        D-0         GE0/0/2        LAN
+                                           254/-
+------------------------------------------------------------------------------
+Total:7         Dynamic:6       Static:0     Interface:1
+<nn-van28a-r01>
+```
+
+```cmd
+PS C:\Users\modem\AppData\Roaming\MobaXterm\home> curl http://10.250.254.64/
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : <!DOCTYPE html>
+                    <html>
+                    <head>
+                    <title>Welcome to nginx!</title>
+                    <style>
+                    html { color-scheme: light dark; }
+                    body { width: 35em; margin: 0 auto;
+                    font-family: Tahoma, Verdana, Arial, sans-serif; }
+                    </style...
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    Accept-Ranges: bytes
+                    Content-Length: 615
+                    Content-Type: text/html
+                    Date: Sun, 04 May 2025 09:32:09 GMT
+                    ETag: "681727d4-267"
+                    Last-Modified: Sun, 04 May 2025 ...
+Forms             : {}
+Headers           : {[Connection, keep-alive], [Accept-Ranges, bytes], [Content-Length, 615], [Content-Type, text/html]...}
+Images            : {}
+InputFields       : {}
+Links             : {@{innerHTML=nginx.org; innerText=nginx.org; outerHTML=<A href="http://nginx.org/">nginx.org</A>; outerText=nginx.org; tagName=A; href=http://nginx.org/}, @{innerHTML=nginx.com; innerText=nginx.com; outerHTML=<A href="http://nginx.com/">nginx.com</A
+                    >; outerText=nginx.com; tagName=A; href=http://nginx.com/}}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 615
+```
+
+Если попытаться запустить еще один контейнер, то возникнет ошибка, т.к. адреса из диапазона закончились.
+
+```linux
+modemfux@docker-vm-nb:~$ docker run -d --network NB_NET --name WEB05 sample_nginx:3
+21f0f89088879a3c2123002e08928470a97681779922040f01af70beca8fb561
+docker: Error response from daemon: failed to set up container networking: no available IPv4 addresses on this network's address pools: NB_NET (2628c4b4a767488f8241cec8d8e9fe660f36c2d9c2b576559597164fea9bd355)
+
+Run 'docker run --help' for more information
+modemfux@docker-vm-nb:~$
+```
+
+Но, при этом, спокойно можно будет запустить с указанным вручную адресом:
+
+```linux
+modemfux@docker-vm-nb:~$ docker run -d --network NB_NET --ip 10.250.254.68 --name WEB05 sample_nginx:3
+09f8ca63a6b5e44d4e23fd2bee1bf7b1fe20409de115550e4f0fe893684b4d84
+modemfux@docker-vm-nb:~$
+```
+
+```huawei
+<nn-van28a-r01>dis arp int vlan254 | i 10.250.254.68
+IP ADDRESS      MAC ADDRESS     EXPIRE(M) TYPE        INTERFACE   VPN-INSTANCE
+                                    VLAN/CEVLAN(SIP/DIP)      PVC
+------------------------------------------------------------------------------
+10.250.254.68   aed3-3fd6-4b30  20        D-0         GE0/0/2        LAN
+------------------------------------------------------------------------------
+Total:8         Dynamic:7       Static:0     Interface:1
+<nn-van28a-r01>
+```
