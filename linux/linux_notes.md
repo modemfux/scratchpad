@@ -97,6 +97,14 @@ modemfux@docker-vm-nb:~$
 
 ## Network config
 
+### Create dot1q subinterface
+
+```linux
+ip link add link eth7 name eth7.100 type vlan id 100
+ip link set dev eth7 up
+ip link set dev eth7.100 up
+```
+
 Часть взята отсюда: [https://habr.com/ru/articles/884824/](https://habr.com/ru/articles/884824/)
 
 ### Bridge config
