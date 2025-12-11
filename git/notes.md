@@ -56,10 +56,3 @@ echo "GIT_PROMPT_THEME=Custom_Single_Line_Dark" >> ~/.bashrc
 
 ```linux
 modemfux@WSL-22.04:~/REPO/net_operations [main|✔]>
-```
-
-```markdown
-![Sample image](./imgs/sample.png)
-```
-
-![Sample image](./imgs/sample.png)
