@@ -1,3 +1,10 @@
+# VIM. Настройка vimrc
+
+В .vimrc находятся локальные настройки для редактора. Сам файл `.vimrc` расположен в домашней директории.
+
+Мой типовой конфиг:
+
+```vimrc
 " Кодировка по-умолчанию
 set encoding=utf8
 
@@ -10,9 +17,8 @@ set t_Co=256
 " Выделение курсора
 set cursorline
 set cursorcolumn
-" Выделение строки жирным шрифтом оригинальных цветов без подчеркивания и более темным фоном
-highlight CursorLine cterm=bold ctermbg=16 ctermfg=None
-highlight CursorColumn ctermbg=16
+highlight CursorLine ctermbg=0 cterm=bold
+highlight CursorColumn ctermbg=0
 
 set ruler
 
@@ -34,6 +40,8 @@ set undolevels=1000
 " Настройки поиска
 set ignorecase
 set smartcase
+set incsearch
+set hlsearch
 
 " Включение светлой темы
 " set background=light
@@ -101,3 +109,4 @@ autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
 autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 autocmd InsertLeave * match ExtraWhitespace /\s\+$/
 autocmd BufWinLeave * call clearmatches()
+```
