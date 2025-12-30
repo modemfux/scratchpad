@@ -1,4 +1,48 @@
-# Разрешаем SUDO без пароля
+# Linux base in one file
+
+- [Linux base in one file](#linux-base-in-one-file)
+  - [Изменить редактор по умолчанию](#изменить-редактор-по-умолчанию)
+  - [Изменение hostname](#изменение-hostname)
+  - [Разрешаем SUDO без пароля](#разрешаем-sudo-без-пароля)
+  - [sysctl](#sysctl)
+
+## Изменить редактор по умолчанию
+
+[**Назад**](/README.md)
+
+По умолчанию в Ubuntu и пр. редактором выбран nano. Чтобы изменить, нужно сделать следующее:
+
+```bash
+modemfux@docker-vm-nb:~$ sudo update-alternatives --config editor
+There are 4 choices for the alternative editor (providing /usr/bin/editor).
+
+  Selection    Path                Priority   Status
+------------------------------------------------------------
+  0            /bin/nano            40        auto mode
+  1            /bin/ed             -100       manual mode
+  2            /bin/nano            40        manual mode
+* 3            /usr/bin/vim.basic   30        manual mode
+  4            /usr/bin/vim.tiny    15        manual mode
+
+Press <enter> to keep the current choice[*], or type selection number: 3
+modemfux@docker-vm-nb:~$
+```
+
+---
+
+## Изменение hostname
+
+[**Назад**](/README.md)
+
+```bash
+sudo hostnamectl hostname FRR
+```
+
+Позволяет сохранить хостнейм и после перезагрузки.
+
+---
+
+## Разрешаем SUDO без пароля
 
 [**Назад**](/README.md)
 
@@ -68,3 +112,16 @@ modemfux@docker-vm-nb:/etc$
 ```
 
 Добавлять нужно в конце, а не в "блоке" User privilege specification, т.к. иначе последующие инструкции затрут внесенные изменения.
+
+---
+
+## sysctl
+
+[**Назад**](/README.md)
+
+**sysctl** - утилита, позволяющая читать и изменять параметры ядра "на лету". Работает через изменение виртуальной файловой системы `/proc/sys`.
+
+`sysctl -a` - посмотреть все текущие значения.
+`sysctl -p` - загрузить все значения из `/etc/sysctl.conf`.
+`sysctl -w $VAR_NAME=$NEW_VALUE` - записать значения в переменную. Например: `sysctl -w net.ipv4.ip_forward=1`.
+`sysctl $VAR_NAME` - получить текущие значения для переменной.
