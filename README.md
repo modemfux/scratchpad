@@ -3,7 +3,7 @@
 Заметки, инструкции и т.п.
 
 - **Base linux**
-  - [Изменение hostname](./01_linux_base/hostname.md)
+  - [Изменение hostname](/01_linux_base/hostname.md)
   - [Разрешаем SUDO без пароля](./01_linux_base/sudo_passwordless.md)
   - [Изменить редактор по умолчанию](./01_linux_base/default_text_editor.md)
   - [Информация о sysctl](./01_linux_base/sysctl.md)
