@@ -1,5 +1,7 @@
 # Bridge config
 
+[**Назад**](/README.md)
+
 Источник: <https://habr.com/ru/articles/884824/>
 
 ```bash

@@ -1,5 +1,7 @@
 # Изменить наименование сетевых интерфейсов
 
+[**Назад**](/README.md)
+
 ```bash
 modemfux@docker-vm-nb:/etc/netplan$ ip -br -c l
 lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP>

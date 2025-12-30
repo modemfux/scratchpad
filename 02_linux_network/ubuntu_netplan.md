@@ -1,5 +1,7 @@
 # Ubuntu Netplan
 
+[**Назад**](/README.md)
+
 Заходим в папку netplan (`/etc/netplan`)
 
 ```bash

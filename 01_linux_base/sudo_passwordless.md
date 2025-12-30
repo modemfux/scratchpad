@@ -1,5 +1,7 @@
 # Разрешаем SUDO без пароля
 
+[**Назад**](/README.md)
+
 В sudoers (через `sudo visudo`) в конце добавляем строчку вида `$USERNAME ALL=(ALL) NOPASSWD: ALL`. В итоге выглядеть будет как-то так:
 
 ```linux

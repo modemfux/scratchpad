@@ -1,5 +1,7 @@
 # network.interfaces - Debian / Alpine interfaces
 
+[**Назад**](/README.md)
+
 Пример из лабы:
 
 ```bash
