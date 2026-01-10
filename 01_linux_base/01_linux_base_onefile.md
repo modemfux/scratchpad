@@ -1,6 +1,8 @@
-# Linux base in one file
+# Linux base notes
 
-- [Linux base in one file](#linux-base-in-one-file)
+[**Назад**](/README.md)
+
+- [Linux base notes](#linux-base-notes)
   - [Изменить редактор по умолчанию](#изменить-редактор-по-умолчанию)
   - [Изменение hostname](#изменение-hostname)
   - [Разрешаем SUDO без пароля](#разрешаем-sudo-без-пароля)

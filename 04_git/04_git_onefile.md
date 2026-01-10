@@ -1,6 +1,9 @@
-# Notes
+# GIT Notes
 
-Обычные заметки
+[**Назад**](/README.md)
+
+- [GIT Notes](#git-notes)
+  - [GIT Prompt customization](#git-prompt-customization)
 
 ## GIT Prompt customization
 

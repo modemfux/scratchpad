@@ -1,6 +1,13 @@
-# VIM. Настройка vimrc
+# VIM
 
-В .vimrc находятся локальные настройки для редактора. Сам файл `.vimrc` расположен в домашней директории.
+[**Назад**](/README.md)
+
+- [VIM](#vim)
+  - [Настройка vimrc](#настройка-vimrc)
+
+## Настройка vimrc
+
+В .vimrc находятся локальные настройки для редактора. Сам файл `.vimrc` расположен в домашней директории. В случае Windows, файл называется `_vimrc` и расположен в `$HOME` (`C:\Users\username\`).
 
 Мой типовой конфиг:
 
@@ -16,7 +23,6 @@ set t_Co=256
 
 " Выделение курсора
 set cursorline
-set cursorcolumn
 highlight CursorLine ctermbg=0 cterm=bold
 highlight CursorColumn ctermbg=0
 

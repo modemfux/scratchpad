@@ -19,3 +19,7 @@
   - [Изменить наименование сетевых интерфейсов на ethX](/02_linux_network/eth_like_interfaces_names.md)
   - [LLDP](/02_linux_network/lldp.md)
 - [**Docker**](/03_docker/03_docker_onefile.md)
+- [**GIT**](/04_git/04_git_onefile.md)
+- [**VIM**](/05_vim/05_vim_onefile.md)
+- **Other**
+  - [**Хранение и передача битов и байтов**](/09_other/bits_and_bytes_order.md)
