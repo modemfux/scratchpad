@@ -1,1 +1,0 @@
-curl -s -X POST https://api.telegram.org/bot5471799096:AAGXElESbXi6hzxLd8lEsZqzOTSHRx4lp1g/sendMessage?chat_id=-1001727911549 -F text="Alarm! Camera on MG69-16 detected movement!"
