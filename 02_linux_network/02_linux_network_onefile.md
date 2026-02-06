@@ -16,6 +16,7 @@
     - [Создание VRF в iproute2](#создание-vrf-в-iproute2)
     - [Включить обработку входящих пакетов для VRF](#включить-обработку-входящих-пакетов-для-vrf)
     - [Debian / Alpine interfaces - автосоздание VRF](#debian--alpine-interfaces---автосоздание-vrf)
+    - [Посмотреть таблицу маршрутизации vrf](#посмотреть-таблицу-маршрутизации-vrf)
 
 ## Bridge config
 
@@ -460,3 +461,24 @@ iface Loopback105 inet manual
 - `pre-up ip link add Loopback105 type dummy`: предварительное создание линка типа `dummy`
 - `pre-up ip link set Loopback105 master DUT1`: предварительная привязка созданного линка к vrf
 - `address 172.21.255.105/32`: настройка IPv4-адреса.
+
+### Посмотреть таблицу маршрутизации vrf
+
+```bash
+admin@Leaf2-PoC-ST38:~$ ip vrf show
+Name              Table
+-----------------------
+Vrf39E7561C       1050
+Vrf784DD132       1051
+admin@Leaf2-PoC-ST38:~$ ip route show 
+default via 10.27.214.254 dev eth0 proto kernel onlink 
+10.2.22.0/24 dev Ethernet76 proto kernel scope link src 10.2.22.2 
+10.27.214.0/24 dev eth0 proto kernel scope link src 10.27.214.116 
+240.127.1.0/24 dev docker0 proto kernel scope link src 240.127.1.1 linkdown 
+admin@Leaf2-PoC-ST38:~$ ip route show table 1050
+broadcast 10.12.0.0 dev Vlan12 proto kernel scope link src 10.12.255.254 
+10.12.0.0/16 dev Vlan12 proto kernel scope link src 10.12.255.254 
+local 10.12.255.254 dev Vlan12 proto kernel scope host src 10.12.255.254 
+broadcast 10.12.255.255 dev Vlan12 proto kernel scope link src 10.12.255.254 
+admin@Leaf2-PoC-ST38:~$ 
+```
