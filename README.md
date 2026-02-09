@@ -7,6 +7,7 @@
   - [Разрешаем SUDO без пароля](/01_linux_base/sudo_passwordless.md)
   - [Изменить редактор по умолчанию](/01_linux_base/default_text_editor.md)
   - [Информация о sysctl](/01_linux_base/sysctl.md)
+  - [tcpdump](/01_linux_base/tcpdump.md)
 - [**Network**](/02_linux_network/02_linux_network_onefile.md)
   - [Создание dot1q сабинтерфейса](/02_linux_network/create_subinterface.md)
   - [Создание bridge](/02_linux_network/create_bridge.md)
