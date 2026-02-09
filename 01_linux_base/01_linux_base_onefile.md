@@ -7,10 +7,10 @@
   - [Изменение hostname](#изменение-hostname)
   - [Разрешаем SUDO без пароля](#разрешаем-sudo-без-пароля)
   - [sysctl](#sysctl)
+  - [tcpdump](#tcpdump)
+    - [Ограничения по захвату](#ограничения-по-захвату)
 
 ## Изменить редактор по умолчанию
-
-[**Назад**](/README.md)
 
 По умолчанию в Ubuntu и пр. редактором выбран nano. Чтобы изменить, нужно сделать следующее:
 
@@ -34,8 +34,6 @@ modemfux@docker-vm-nb:~$
 
 ## Изменение hostname
 
-[**Назад**](/README.md)
-
 ```bash
 sudo hostnamectl hostname FRR
 ```
@@ -45,8 +43,6 @@ sudo hostnamectl hostname FRR
 ---
 
 ## Разрешаем SUDO без пароля
-
-[**Назад**](/README.md)
 
 В sudoers (через `sudo visudo`) в конце добавляем строчку вида `$USERNAME ALL=(ALL) NOPASSWD: ALL`. В итоге выглядеть будет как-то так:
 
@@ -119,11 +115,38 @@ modemfux@docker-vm-nb:/etc$
 
 ## sysctl
 
-[**Назад**](/README.md)
-
 **sysctl** - утилита, позволяющая читать и изменять параметры ядра "на лету". Работает через изменение виртуальной файловой системы `/proc/sys`.
 
 `sysctl -a` - посмотреть все текущие значения.
 `sysctl -p` - загрузить все значения из `/etc/sysctl.conf`.
 `sysctl -w $VAR_NAME=$NEW_VALUE` - записать значения в переменную. Например: `sysctl -w net.ipv4.ip_forward=1`.
 `sysctl $VAR_NAME` - получить текущие значения для переменной.
+
+---
+
+## tcpdump
+
+***tcpdump*** - утилита, позволяющая захватывать сетевой трафик с интерфейсов.
+
+Запускается через sudo или root'ом.
+
+### Ограничения по захвату
+
+```bash
+sudo tcpdump -w sample_file_Ethernet0.pcap -G 60 -W 1 -i Ethernet0
+```
+
+Здесь:
+
+- `-w sample_file_Ethernet0.pcap` - запись захваченных пакетов в файл `sample_file_Ethernet0.pcap`.
+- `-G 60` - ротация (смена файла для записи) каждые 60 секунд.
+- `-W 1` - записать один файл.
+- `-i Ethernet0` - производить захват с интерфейса `Ethernet0`.
+
+Как вариант, можно ограничить по количеству пакетов:
+
+```bash
+sudo tcpdump -w sample_file_Ethernet0.pcap -c 1000 -i Ethernet0
+```
+
+`-c 1000` - прервать работу после захвата 1000 пакетов.
