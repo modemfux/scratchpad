@@ -79,3 +79,17 @@ iface Loopback325 inet manual
         pre-up ip link set Loopback325 master DUT3
         address 172.21.255.25/32
 ```
+
+Если необходимо будет создать сабинтерфейс, то можно будет сделать так:
+
+```bash
+sudo echo "8021q" >> /etc/modules
+```
+
+А потом добавить в `/etc/network/interfaces` следующее:
+
+```bash
+auto eth0.12
+        address 10.1.2.2
+        netmask 255.255.255.0
+```
